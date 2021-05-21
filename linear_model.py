@@ -69,5 +69,8 @@ class LM:
         k = tval * (self.sigma_sq_hat * self.var_beta_hat[j][j])**0.5
         return self.beta_hat[j] - k, self.beta_hat[j] + k
 
+    def _get_R_ajustado(self):
+        return 1 - (self._get_cme()/self._get_cmr())
 
-        
+    def _get_yf_hat(self, xf):
+        return xf.T*self.beta_hat  # En los unos van las betas
