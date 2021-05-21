@@ -18,7 +18,7 @@ class LM:
     def predict(self, x):
         pass
 
-    def uptade(self, explain):
+    def update(self, explain):
         assert all([x in self.cols for x in explain])
         self.explain = explain
         self.p = len(self.explain)
