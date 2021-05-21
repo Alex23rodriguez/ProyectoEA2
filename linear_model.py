@@ -62,3 +62,9 @@ class LM:
 
     def _get_R(self):
         return self._get_scr()/self._get_syy()
+
+    def _get_R_ajustado(self):
+        return 1 - (self._get_cme()/self._get_cmr())
+
+    def _get_yf_hat(self, xf):
+        return xf.T*111111  #En los unos van las betas 
