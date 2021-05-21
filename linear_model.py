@@ -41,3 +41,24 @@ class LM:
 
     def _get_sigma_sq_hat(self):
         return 1/(self.n-self.p)*(self.y.T*(np.identity(self.n) - self.H)) * self.y
+
+    def _get_cme(self):
+        return (1/(self.n - self.p))*(self.y.T*(np.identity(self.n) - self.H)*self.y)
+
+    def _get_sce(self):
+        return (self.y.T*(np.identity(self.n) - self.H)*self.y)
+    
+    def _get_scr(self):
+        return self.y.T*(self.H - (1/self.n)*np.ones((self.n, self.n)))*self.y
+    
+    def _get_syy(self):
+        return self.y.T*(np.identity(self.n) - (1/self.n)*np.ones((self.n, self.n)))*self.y
+
+    def _get_cmr(self):
+        return (1/(self.p -1))*self.y.T*(self.H - (1/self.n)*np.ones((self.n, self.n)))*self.y
+
+    def _get_f(self):
+        return  ((1/(self.p -1))*self.y.T*(self.H - (1/self.n)*np.ones((self.n, self.n)))*self.y)/( (1/(self.n - self.p))*(self.y.T*(np.identity(self.n) - self.H)*self.y))
+
+    def _get_R(self):
+        return self._get_scr()/self._get_syy()
