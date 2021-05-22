@@ -30,6 +30,12 @@ class LM:
     def get_residuals(self):
         return self.y - self.X*self.beta_hat
 
+    def residual_summary(self):
+        r = sorted([x[0, 0] for x in self.get_residuals()])
+        n = len(r)
+        median = r[int((n-1)/2)] if n % 2 else (r[int(n/2)]+r[int(n/2)-1]) / 2
+        return (r[0], median, r[-1])
+
     def update(self, explain):
         assert all([x in self.cols for x in explain])
         self.explain = explain
