@@ -24,8 +24,11 @@ class LM:
         xdf = pd.DataFrame(X)
         return LM(ydf.join(xdf), 'y')
 
-    def predict(self, x):
-        pass
+    def predict(self, xf):
+        return xf.T*self.beta_hat
+
+    def get_residuals(self):
+        return self.y - self.X*self.beta_hat
 
     def update(self, explain):
         assert all([x in self.cols for x in explain])
@@ -83,9 +86,6 @@ class LM:
 
     def _get_R_ajustado(self):
         return 1 - (self._get_cme()/self._get_cmr())
-
-    def _get_yf_hat(self, xf):
-        return xf.T*self.beta_hat  # En los unos van las betas
 
     def IC_beta_hat(self, j, alpha):
         tval = stats.t.ppf(alpha/2, self.n-self.p)
