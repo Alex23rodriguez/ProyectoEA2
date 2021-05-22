@@ -34,6 +34,7 @@ class LM:
         r = sorted([x[0, 0] for x in self.get_residuals()])
         n = len(r)
         median = r[int((n-1)/2)] if n % 2 else (r[int(n/2)]+r[int(n/2)-1]) / 2
+        print(f"sum: {sum(r)}, mean: {sum(r)/n}")
         return (r[0], median, r[-1])
 
     def update(self, explain):
@@ -91,7 +92,7 @@ class LM:
         return self._get_scr()/self._get_syy()
 
     def _get_R_ajustado(self):
-        return 1 - (self._get_cme()/self._get_cmr())
+        return 1 - (self._get_cme()*(self.n-1)/self._get_syy())
 
     def IC_beta_hat(self, j, alpha):
         tval = stats.t.ppf(alpha/2, self.n-self.p)
