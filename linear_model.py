@@ -38,6 +38,7 @@ class LM:
         self.H = self.X*((self.X.T*self.X)**-1)*self.X.T
         self.beta_hat = self._get_beta_hat()
         self.sigma_sq_hat = self._get_sigma_sq_hat()
+        self.residual_std_error = self.sigma_sq_hat**0.5
         self.var_beta_hat = self._get_var_beta_hat()
 
     def _get_beta_hat(self):
@@ -70,6 +71,13 @@ class LM:
     def _get_f(self):
         return self._get_cmr() / self._get_cme()
 
+    def _get_f_statistic(self):
+        gl1 = self.p-1
+        gl2 = self.n - self.p
+        fval = self._get_f()
+        pval = 1-stats.f.cdf(fval, gl1, gl2)
+        return fval, gl1, gl2, pval
+
     def _get_R(self):
         return self._get_scr()/self._get_syy()
 
@@ -87,15 +95,36 @@ class LM:
         return self.beta_hat[j, 0] - k, self.beta_hat[j, 0] + k
 
     def anova(self):
-        gl1 = self.p-1
-        gl2 = self.n - self.p
-        fval = self._get_f()
+        fval, gl1, gl2, pval = self._get_f_statistic()
         df = pd.DataFrame({
             'Suma de cuadrados': [self._get_scr(), self._get_sce(), self._get_syy()],
             'Grados de libertad': [gl1, gl2, self.n-1],
             'Cuadrados medios': [self._get_cmr(), self._get_cme(), None],
             'F': [fval, None, None],
-            'p-value': [1-stats.f.cdf(fval, gl1, gl2), None, None]
+            'p-value': [pval, None, None]
         })
         df.index = ['Regresión', 'Residual', 'Total']
         return df
+
+    def summary(self):
+        estimate = [b[0, 0] for b in self.beta_hat]
+        std_error = [self.var_beta_hat[i, i]**0.5 for i in range(self.p)]
+        tvals = [e/s for e, s in zip(estimate, std_error)]
+        pr = [2*stats.t.cdf(-abs(x), self.n-self.p) for x in tvals]
+
+        df = pd.DataFrame({
+            'Estimate': estimate,
+            'Std. Error': std_error,
+            't value': tvals,
+            'Pr(>|t|)': pr
+        })
+        df.index = ['(Intercept)'] + self.explain
+        print(df)
+        print('\n\n')
+
+        print(
+            f'Residual standard error: {self.residual_std_error} on {self.n-self.p} degrees of freedom')
+        print(
+            f'Multiple R-squared: {self._get_R()},  Adjusted R-squared: {self._get_R_ajustado()}')
+        fval, gl1, gl2, pval = self._get_f_statistic()
+        print(f'F-statistic: {fval} on {gl1} and {gl2} DF, p-value: {pval}')
