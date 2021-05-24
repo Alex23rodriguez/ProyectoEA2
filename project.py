@@ -2,6 +2,7 @@
 from linear_model import LM
 from matplotlib import pyplot
 import linear_model
+import pandas as pd
 from importlib import reload
 reload(linear_model)
 
@@ -17,4 +18,15 @@ r = lm.get_residuals()
 pyplot.boxplot(r)
 # %%
 lm.residual_summary()
+# %%
+lm.anova()
+# %%
+lm.summary()
+
+# %%
+lm._inicial()
+# %%
+
+# %%
+
 # %%
