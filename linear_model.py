@@ -136,7 +136,7 @@ class LM:
         fval, gl1, gl2, pval = self._get_f_statistic()
         print(f'F-statistic: {fval} on {gl1} and {gl2} DF, p-value: {pval}')
 
-    def _inicial(self):
+    def inicial(self):
         ydf = pd.DataFrame(self.df[self.y_col])
         xdf = pd.DataFrame(self.df[self.cols])
         _ = pd.plotting.scatter_matrix(xdf, c=ydf['decibels'])
