@@ -24,7 +24,7 @@ lm.anova()
 lm.summary()
 
 # %%
-lm._inicial()
+lm.inicial()
 # %%
 
 # %%
