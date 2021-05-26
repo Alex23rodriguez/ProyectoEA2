@@ -31,12 +31,27 @@ class LM:
     def get_residuals(self):
         return self.y - self.X*self.beta_hat
 
-    def residual_summary(self):
-        r = sorted([x[0, 0] for x in self.get_residuals()])
-        n = len(r)
-        median = r[int((n-1)/2)] if n % 2 else (r[int(n/2)]+r[int(n/2)-1]) / 2
-        print(f"sum: {sum(r)}, mean: {sum(r)/n}")
-        return (r[0], median, r[-1])
+    def residual_summary(self, plot=True):
+        res = sorted([x[0, 0] for x in self.get_residuals()])
+        n = len(res)
+        median = res[int((n-1)/2)] if n % 2 else (res[int(n/2)
+                                                      ]+res[int(n/2)-1]) / 2
+        print(f"sum: {sum(res)}, mean: {sum(res)/n}")
+        if plot:
+            _, ax = plt.subplots()
+            ax.boxplot(res)
+            ax.set_title('Residuals')
+            plt.show()
+
+            _, ax = plt.subplots()
+            ax.scatter(self._get_y_hat().getA1(), res)
+            ax.set_ylabel('Residuals')
+            ax.set_xlabel(self.y_col)
+            ax.set_title(f'Estimated {self.y_col} vs. Residuals')
+            ax.grid(True)
+            plt.show()
+
+        return (res[0], median, res[-1])
 
     def update(self, explain):
         assert all([x in self.cols for x in explain])
@@ -51,6 +66,11 @@ class LM:
         self.sigma_sq_hat = self._get_sigma_sq_hat()
         self.residual_std_error = self.sigma_sq_hat**0.5
         self.var_beta_hat = self._get_var_beta_hat()
+        self.Syy = self._get_syy()
+        self.SCR = self._get_scr()
+        self.SCE = self._get_sce()
+        self.CMR = self._get_cmr()
+        self.CME = self._get_cme()
 
     def _get_beta_hat(self):
         return (self.X.T*self.X)**-1 * self.X.T * self.y
@@ -90,13 +110,13 @@ class LM:
         return fval, gl1, gl2, pval
 
     def _get_R(self):
-        return self._get_scr()/self._get_syy()
+        return self.SCR/self.Syy
 
     def _get_R_ajustado(self):
-        return 1 - (self._get_cme()*(self.n-1)/self._get_syy())
+        return 1 - (self.CME*(self.n-1)/self.Syy)
 
     def IC_beta_hat(self, j, alpha):
-        tval = stats.t.ppf(alpha/2, self.n-self.p)
+        tval = abs(stats.t.ppf(alpha/2, self.n-self.p))
         k = tval * (self.sigma_sq_hat * self.var_beta_hat[j, j])**0.5
         print(self.beta_hat[j, 0], tval,
               self.sigma_sq_hat, self.var_beta_hat[j, j])
@@ -105,11 +125,11 @@ class LM:
     def anova(self):
         fval, gl1, gl2, pval = self._get_f_statistic()
         df = pd.DataFrame({
-            'Suma de cuadrados': [self._get_scr(), self._get_sce(), self._get_syy()],
+            'Suma de cuadrados': [self.SCR, self.SCE, self.Syy],
             'Grados de libertad': [gl1, gl2, self.n-1],
-            'Cuadrados medios': [self._get_cmr(), self._get_cme(), None],
-            'F': [fval, None, None],
-            'p-value': [pval, None, None]
+            'Cuadrados medios': [self.CMR, self.CME, ''],
+            'F': [fval, '', ''],
+            'p-value': [pval, '', '']
         })
         df.index = ['Regresión', 'Residual', 'Total']
         return df
@@ -147,12 +167,11 @@ class LM:
             fig, ax = plt.subplots()
             x, y = self.df[col], self.df[self.y_col]
             ax.scatter(x, y)
-            ax.set_title(f'{col} vs {self.y_col}')
+            ax.set_title(f'{col} vs. {self.y_col}')
             ax.set_xlabel(col)
             ax.set_ylabel(self.y_col)
             ax.grid(True)
             if fit:
                 fn = np.poly1d(np.polyfit(x, y, 1))
-                plt.plot([min(x), max(x)],
-                         fn([min(x), max(x)]), 'g--')
+                plt.plot([min(x), max(x)], fn([min(x), max(x)]), 'g--')
             plt.show()
