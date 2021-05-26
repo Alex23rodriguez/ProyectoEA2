@@ -4,6 +4,7 @@ from pandas.core.frame import DataFrame
 from scipy import matrix, stats
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 
 class LM:
@@ -137,7 +138,21 @@ class LM:
         print(f'F-statistic: {fval} on {gl1} and {gl2} DF, p-value: {pval}')
 
     def inicial(self):
-        ydf = pd.DataFrame(self.df[self.y_col])
         xdf = pd.DataFrame(self.df[self.cols])
-        _ = pd.plotting.scatter_matrix(xdf, c=ydf['decibels'])
+        _ = pd.plotting.scatter_matrix(xdf, c=self.df[self.y_col])
         _ = pd.plotting.scatter_matrix(self.df)
+
+    def scatter(self, fit=True):
+        for col in self.cols:
+            fig, ax = plt.subplots()
+            x, y = self.df[col], self.df[self.y_col]
+            ax.scatter(x, y)
+            ax.set_title(f'{col} vs {self.y_col}')
+            ax.set_xlabel(col)
+            ax.set_ylabel(self.y_col)
+            ax.grid(True)
+            if fit:
+                fn = np.poly1d(np.polyfit(x, y, 1))
+                plt.plot([min(x), max(x)],
+                         fn([min(x), max(x)]), 'g--')
+            plt.show()
