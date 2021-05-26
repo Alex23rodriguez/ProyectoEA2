@@ -1,10 +1,10 @@
 # %%
+from linear_model import LM
 from matplotlib import pyplot
 import linear_model
+import pandas as pd
 from importlib import reload
 reload(linear_model)
-import pandas as pd
-from linear_model import LM
 
 # %%
 df = pd.read_csv('airfoil_self_noise.dat', sep='\t')
@@ -19,7 +19,10 @@ pyplot.boxplot(r)
 # %%
 lm.residual_summary()
 # %%
-lm.summary()
-# %%
 lm.anova()
+# %%
+lm.summary()
+
+# %%
+lm.inicial()
 # %%

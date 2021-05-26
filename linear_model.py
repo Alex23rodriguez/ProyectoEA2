@@ -135,3 +135,9 @@ class LM:
             f'Multiple R-squared: {self._get_R()},  Adjusted R-squared: {self._get_R_ajustado()}')
         fval, gl1, gl2, pval = self._get_f_statistic()
         print(f'F-statistic: {fval} on {gl1} and {gl2} DF, p-value: {pval}')
+
+    def inicial(self):
+        ydf = pd.DataFrame(self.df[self.y_col])
+        xdf = pd.DataFrame(self.df[self.cols])
+        _ = pd.plotting.scatter_matrix(xdf, c=ydf['decibels'])
+        _ = pd.plotting.scatter_matrix(self.df)
